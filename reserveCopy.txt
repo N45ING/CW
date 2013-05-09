@@ -1,0 +1,12 @@
+
+        WTH=calculateNewton(W.back(),time,_h,_thau);
+        W.push_back(WTH);
+        argument=leftBoundary;
+        foreach (double value, W.back())
+            {
+                stream <<"  time is   " << time <<"   yApp=   " << value <<"   yAcc=  " <<getAccurateValue(argument,time) <<" absPoh=  "<< value-getAccurateValue(argument,time)  << " otnPoh=    "<<(value-getAccurateValue(argument,time))/value*100. <<"\n";
+                argument+=_h;
+            }
+        stream<<endl;
+    }
+    stream.flush();

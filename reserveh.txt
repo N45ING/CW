@@ -1,0 +1,51 @@
+#ifndef OBVIOUSMETHOD_H
+#define OBVIOUSMETHOD_H
+#include <QObject>
+#include <math.h>
+#include <stdio.h>
+#include <QTextStream>
+#include <QDialog>
+
+namespace Ui
+{
+class ObviousMethod;
+}
+
+
+class ObviousMethod : public QDialog
+{
+    Q_OBJECT
+private:
+    double _equationA;
+    double _equationB;
+    double _accurateA;
+    double _accurateB;
+    double _thau;
+    double _h;
+    int numberOfT;
+    int numberOfX;
+    double *X;
+    double *T;
+    double *W;
+    QTextStream stream;
+    void printf(QString string);
+
+public:
+    explicit ObviousMethod(double a, double b, double A, double B,QWidget *parent = 0);
+    ObviousMethod();
+    double getInitialConditions(double x);
+    double getBoundaryConditions(double x, double t);
+    double getLeftBoundaryCondition(double t);
+    double getRightBoundaryCondition(double t);
+    void calculateMethod();
+    void display();
+    ~ObviousMethod();
+public slots:
+    void setEquationA(double a);
+    void setEquationB(double b);
+    void setAccurateA(double a);
+    void setAccurateB(double b);
+};
+
+
+#endif // OBVIOUSMETHOD_H

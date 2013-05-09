@@ -1,0 +1,132 @@
+#include <obviousmethod.h>
+
+ObviousMethod::ObviousMethod(double a, double b, double A, double B, QWidget *parent)
+{
+    _equationA=a;
+    _equationB=b;
+    _accurateA=A;
+    _accurateB=B;
+    _thau=1.0/32.0;
+    _h=1.0/4.0;
+    numberOfT=33;
+    numberOfX=5;
+    X= new double[numberOfX];
+    T= new double[numberOfT];
+    W= new double[numberOfT*numberOfX];
+}
+ObviousMethod::ObviousMethod()
+{
+    _thau=1.0/32.0;
+    _h=1.0/4.0;
+    numberOfT=33;
+    numberOfX=5;
+    X= new double[numberOfX];
+    T= new double[numberOfT];
+    W= new double[numberOfT*numberOfX];
+}
+
+void ObviousMethod::setEquationA(double a)
+{
+    _equationA=a;
+}
+void ObviousMethod::setEquationB(double b)
+{
+    _equationB=b;
+}
+
+void ObviousMethod::setAccurateA(double a)
+{
+    _accurateA=a;
+}
+void ObviousMethod::setAccurateB(double b)
+{
+    _accurateB=b;
+}
+
+double ObviousMethod::getInitialConditions(double x)
+{
+    double value;
+    double returnableValue;
+    value = (1/_accurateB)*x*x+_accurateA*pow(_accurateB,(-1.0/4.0))-(_equationB/(15.0*_equationA))*_accurateB;
+    returnableValue= value*sqrt(fabs(value));
+    return returnableValue;
+}
+
+double ObviousMethod::getBoundaryConditions(double x, double t)
+{
+    double value;
+    double returnableValue;
+    double x1,x2,x3;
+    double expression = _accurateB-(8.0*_equationA*t);
+    x1=1.0/expression;
+    x2=pow(expression,-1.0/4.0);
+    x3=expression*(_equationB/(15.0*_equationA));
+    value = x1*x*x+_accurateA*x2-x3;
+    returnableValue = value*sqrt(fabs(value));
+    return returnableValue;
+}
+
+double ObviousMethod::getLeftBoundaryCondition(double t)
+{
+    return getBoundaryConditions(0.0,t);
+}
+
+double ObviousMethod::getRightBoundaryCondition(double t)
+{
+    return getBoundaryConditions(1.0,t);
+}
+ObviousMethod::~ObviousMethod()
+{
+    delete [] X;
+    delete [] T;
+    delete [] W;
+}
+void ObviousMethod::calculateMethod()
+{
+    double XR;
+    double TR;
+    int i,j,k;
+    int n=numberOfX;
+    double left;
+    double right;
+
+
+    double x1,x2,x3,x4,x5,x6;
+
+
+    for(XR=0,i=0;i<numberOfX;i++,XR+=_h)
+    {
+        X[i]=XR;
+    }
+    for(TR=0,j=0;j<numberOfT;j++,TR+=_thau)
+    {
+        T[j]=TR;
+    }
+    //W[0]=getLeftBoundaryCondition(0.0);
+    //W[4]=getRightBoundaryCondition(0.0);
+
+    for(i=0;i<numberOfX;i++)
+    {
+        W[i]=getInitialConditions(X[i]);
+    }
+    for(k=1;k<numberOfT;k++)
+    {
+        printf("\n");
+        left = getLeftBoundaryCondition(T[k]);
+        right = getRightBoundaryCondition(T[k]);
+        W[k*n]=left; printf("%.5lf ",W[k*n]);
+        W[k*n+4]=right;
+        for(i=1;i<numberOfX-1;i++)
+        {
+            x1=pow(W[(k-1)*n+i],-1.0/3.0);
+            x2=pow(((W[(k-1)*n+i+1]-W[(k-1)*n+i-1])/(2*_h)),-1.0/3.0);
+            x3=pow(W[(k-1)*n+i],2.0/3.0);
+            x4=(W[(k-1)*n+i-1] - 2*W[(k-1)*n+i] + W[(k-1)*n+i+1])/(_h*_h);
+            x5=pow(W[(k-1)*n+i],1.0/3.0);
+            x6=W[(k-1)*n+i];
+            W[k*n+i]=_thau*_equationA*(2.0/3.0*x1+x2+x3*x4)+_thau*_equationB*x5+x6;
+            printf("%.5lf ",W[k*n+i]);
+        }
+        printf("%.5lf ",W[k*n+4]);
+    }
+}

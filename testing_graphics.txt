@@ -1,0 +1,18 @@
+  for(int i=-1000;i<2000;i++)
+    {
+        grx.push_back(i*0.01);
+        gry.push_back(sin(grx.back()));
+    }
+    QGridLayout *grLay = new QGridLayout(ui->frame);
+    grLay->setContentsMargins(1,1,1,1);
+    QwtText *testText = new QwtText("Testint Graphics for Course Work");
+    QwtPlot *testPlot = new QwtPlot(*testText,ui->frame);
+    grLay->addWidget(testPlot,0,0);
+    QwtPlotCurve *testCurve = new QwtPlotCurve();
+    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    testCurve->setStyle(QwtPlotCurve::Dots);
+    QPen pen = QPen(Qt::blue);
+    testCurve->setPen(pen);
+    testCurve->attach(testPlot);
+    testCurve->setData(grx,gry);
+    testPlot->replot();
