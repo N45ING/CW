@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'notobviousmethod.h'
 **
-** Created: Wed 8. May 15:18:35 2013
+** Created: Thu 9. May 16:23:40 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.3)
 **
 ** WARNING! All changes made in this file will be lost!

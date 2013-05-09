@@ -14,22 +14,12 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     numberOfT=_numberOfT;
     _h=(rightBoundary-leftBoundary)/(numberOfX-1);
     _thau=(rightBoundary-leftBoundary)/(numberOfT-1);
-    double XR;
-    QVector<double> VXR;
-    int i;
-    for(XR=0,i=0;i<numberOfX;i++,XR+=_h)
-    {
-        VXR.push_back(XR);
-    }
-    X.push_back(VXR);
-    /*for(XR=0,i=0;i<numberOfT;i++,XR+=_thau)
-    {
-        T.push_back(XR);
-    }*/
     coeffMax=4.0;
     coeffMin=0.5;
-    hMax=(rightBoundary-leftBoundary)/4;
-    hMin=(rightBoundary-leftBoundary)/1000;
+    hMax=(rightBoundary-leftBoundary)/4.0;
+    hMin=(rightBoundary-leftBoundary)/1000.0;
+    tMax=(rightBoundary-leftBoundary)/4.0;
+    tMin=(rightBoundary-leftBoundary)/1000.0;
     edop=0.01;
 }
 
@@ -205,6 +195,7 @@ QVector<double> NotObviousMethod::solveInterpolation(QVector<double> xOld, QVect
     const int sizeXNew = xNew.size();
     const int sizeXOld = xOld.size();
     QVector<double> yNew(sizeXNew);
+    QVector<double> yCopy(sizeXNew);
     double Fi = 0;
     double p1 = 1;
     double p2 = 1;
@@ -226,6 +217,7 @@ QVector<double> NotObviousMethod::solveInterpolation(QVector<double> xOld, QVect
                     Fi = Fi + yOld[i] * p1 / p2;
                 }
         yNew[k] = Fi;
+        yCopy[k] =Fi;
     }
     return yNew;
 }
@@ -240,23 +232,23 @@ QVector<double> NotObviousMethod::getDoubleX(QVector<double> oldX)
     }
     return newX;
 }
-QVector<double> NotObviousMethod::getCoeffs(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2, double h, double t, double &alphaOut)
+QVector<double> NotObviousMethod::getCoeffs(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T, double h, double t, double &alphaOut)
 {
-    QVector<double> C1(WTH.size()),C2(WTH.size());
-    for (int i=0;i< WTH.size();i++)
+    QVector<double> C1(WHT.size()),C2(WHT.size());
+    for (int i=0;i< WHT.size();i++)
     {
-        C1[i]=2.0/pow(t,2)*(WTdiv2H[i]-WTH[i]);
-        C2[i]=4.0/(3.0*h*h*t)*(WTHdiv2[i*2]-WTH[i]);
+        C1[i]=2.0/pow(t,2)*(WHTdiv2[i]-WHT[i]);
+        C2[i]=4.0/(3.0*h*h*t)*(WHdiv2T[i*2]-WHT[i]);
     }
-    QVector<double> alphai(WTH.size()),bettai(WTH.size());
-    for (int i=0;i< WTH.size();i++)
+    QVector<double> alphai(WHT.size()),bettai(WHT.size());
+    for (int i=0;i< WHT.size();i++)
     {
         alphai[i]=sqrt(edop/(2*fabs(C1[i])*pow(t,2)));
     }
     double alpha=getMin(alphai);
     if (alpha<coeffMin) alpha=coeffMin;
     if(alpha>coeffMax) alpha=coeffMax;
-    QVector<double> e1(WTH.size());
+    QVector<double> e1(WHT.size());
     for (int i=0;i<e1.size();i++)
     {
         e1[i]=edop-fabs(C1[i])*pow(alpha*t,2);
@@ -265,23 +257,23 @@ QVector<double> NotObviousMethod::getCoeffs(QVector<double> WTH, QVector<double>
     alphaOut=alpha;
     return bettai;
 }
-QVector<double> NotObviousMethod::clarifyW(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2)
+QVector<double> NotObviousMethod::clarifyW(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T)
 {
-    QVector<double> clU(WTH.size());
+    QVector<double> clU(WHT.size());
     for (int i=0;i<clU.size();i++)
     {
-        clU[i]=2 * WTdiv2H[i]+4.0/3 * WTHdiv2[i*2]-7.0/3 * WTH[i];
+        clU[i]=2 * WHTdiv2[i]+4.0/3 * WHdiv2T[i*2]-7.0/3 * WHT[i];
     }
     return clU;
 }
-QVector<double> NotObviousMethod::createNewWeb(QVector<double> oldX, QVector<double> bettas)
+QVector<double> NotObviousMethod::createNewWeb(QVector<double> oldX, QVector<double> bettas,double& h)
 {
     double betta=getMin(bettas);
     if(betta<coeffMin) betta=coeffMin;
     if(betta>coeffMax) betta=coeffMax;
-    double h=oldX[1]-oldX[0];
     h*=betta;
     if (h>hMax) h=hMax;
+    if (h<hMin) h=hMin;
     int number=(rightBoundary-leftBoundary)/h+1;
     h=(rightBoundary-leftBoundary)/(number-1);//floor;
     QVector<double> x(number);
@@ -290,29 +282,27 @@ QVector<double> NotObviousMethod::createNewWeb(QVector<double> oldX, QVector<dou
     {
         x[i]=x[i-1]+h;
     }
-    double testValue=x.back();
     if (x.back()!=rightBoundary)
     {
         qDebug() << "error in a function create new web";
         //exit(4);
     }
-    //return (QVector<double>)0;
     return x;
 }
 
-double NotObviousMethod::getEps(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2)
+double NotObviousMethod::getEps(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T)
 {
-    QVector<double> eps(WTH.size());
+    QVector<double> eps(WHT.size());
     for (int i=0;i<eps.size();i++)
     {
-        eps[i]=2 * WTdiv2H[i]+4.0/3.0 * WTHdiv2[i*2]-10.0/3.0 * WTH[i];
+        eps[i]=2 * WHTdiv2[i]+4.0/3.0 * WHdiv2T[i*2]-10.0/3.0 * WHT[i];
     }
     double maxEps=getMax(eps);
     return maxEps;
 }
 double NotObviousMethod::fi(QVector<double> oldW, double wi, double wiplus1, double wiminus1, int i, double h, double thau)
 {
-    double x1,x2,x3,x4,x5,x6;
+    double x1,x2,x3,x4,x5;
     x1=powr(wi,-1.0/3.0);
     x2=powr((wiplus1-wiminus1)/(2*h),-1.0/3.0);
     x3=powr(wi,2.0/3.0);
@@ -322,13 +312,25 @@ double NotObviousMethod::fi(QVector<double> oldW, double wi, double wiplus1, dou
 }
 void NotObviousMethod::calculateMethod()
 {
-    int i,j,k;
-    double t=_thau;
+    int i;
+    double t=tMin;
     double h=hMin;
-    double argument;
+    //double h = (rightBoundary-leftBoundary)/(numberOfX-1);
+   // double t = (rightBoundary-leftBoundary)/(numberOfT-1);
+
     QVector< QVector<double> > Z;
     Z.push_back((QVector<double>)0);
     W.push_back((QVector<double>)0);
+
+    int number=(rightBoundary-leftBoundary)/h+1;
+    double XR;
+    QVector<double> VXR;
+    for(XR=0,i=0;i<number;i++,XR+=h)
+    {
+        VXR.push_back(XR);
+    }
+    X.push_back(VXR);
+
     foreach(double value, X[0])
     {
         W[0].push_back(getAccurateValue(value,0));
@@ -338,63 +340,65 @@ void NotObviousMethod::calculateMethod()
     double time = leftBoundary;
     T.push_back(time);
 
-    while(time<rightBoundary-_thau)
+    while(time<rightBoundary)
     {
-        time+=_thau;
+        time+=t;
         T.push_back(time);
         Z.push_back((QVector<double>)0);
         for (i=0;i<X[0].size();i++)
         {
             Z.back().push_back(getAccurateValue(X[0][i],time));
         }
-
-        QVector<double> WTH(X.back().size());
+        QVector<double> WHT;
+        QVector<double> WHTdiv2;
+        QVector<double> WHdiv2T;
         QVector<double> WSupport;
-        QVector<double> oldX=X.back();
-        QVector<double> betta;
         QVector<double> doubleX;
-        QVector<double> WTHdiv2;
-        QVector<double> WTdiv2H;
+        QVector<double> oldX=X.back();
+        QVector<double> supportX;
         QVector<double> WClarify;
+
+        WHT=calculateNewton(W.back(),time,h,t);
+
+        WHTdiv2=calculateNewton(W.back(),time-t/2.0,h,t/2.0);
+        WHTdiv2=calculateNewton(WHTdiv2,time,h,t/2.0);
+
         doubleX=getDoubleX(oldX);
-
         WSupport=solveInterpolation(oldX,W.back(),doubleX);
-        WTHdiv2=calculateNewton(WSupport,time,h/2,t);
+        WHdiv2T=calculateNewton(WSupport,time,h/2.0,t);
 
-        WTdiv2H=calculateNewton(W.back(),time-t/2,h,t/2);
-        WTdiv2H=calculateNewton(WTdiv2H,time,h,t/2);
-
-        WTH=calculateNewton(W.back(),time,h,t);
-        double eps=getEps(WTH,WTdiv2H,WTHdiv2);
-        if (fabs(eps)>edop)
+        double eps = getEps(WHT,WHTdiv2,WHdiv2T);
+        if(fabs(eps)>edop)
         {
-            h/=2;
+            h=h/2.0;
+            if(h<hMin) h=hMin;
+            if(h>hMax) h=hMax;
             time-=t;
-            t/=2;
-            QVector<double> supportX=getDoubleX(X.back());
-            W.back()=solveInterpolation(X.back(),W.back(),supportX);
+            t=t/2;
+            if(t<tMin) t=tMin;
+            if(t>tMax) t=tMax;
+            supportX=getDoubleX(oldX);
             X.back()=supportX;
+            W.back()=solveInterpolation(oldX,W.back(),supportX);
         }
         else
         {
-          WClarify=clarifyW(WTH,WTdiv2H,WTHdiv2);
-          W.push_back(WClarify);
-          double alpha;
-          QVector<double> bettas=getCoeffs(WClarify, WTdiv2H,WTHdiv2,h,t,alpha);
-          t*=alpha;
-          X.push_back(createNewWeb(oldX, bettas));
-          W.back()=solveInterpolation(X.back(),W.back(),X.back());
-          argument=leftBoundary;
-          foreach (double value, W.back())
-          {
-              stream /*std::cout*/ <<"time is " << time <<" yApp=  " << value <<" yAcc=  " <<getAccurateValue(argument,time) <<" absPoh=  "<< value-getAccurateValue(argument,time)  << " otnPoh=  "<<(value-getAccurateValue(argument,time))/value*100. <<"\n";
-              argument+=h;
-          }
-        }
-        stream<<endl;
-    }
-    stream.flush();
+            WClarify=clarifyW(WHT,WHTdiv2,WHdiv2T);
+            double alpha;
+            QVector<double> bettas=getCoeffs(WHT,WHTdiv2,WHdiv2T,h,t,alpha);
+            t*=alpha;
+            X.push_back(createNewWeb(oldX,bettas,h));
+            W.push_back(solveInterpolation(oldX,WClarify,X.back()));
 
+            double argument=leftBoundary;
+            foreach (double value, W.back())
+            {
+                 stream <<"time is " << time <<" yApp=  " << value <<" yAcc=  " <<getAccurateValue(argument,time) <<" absPoh=  "<< value-getAccurateValue(argument,time)  << " otnPoh=  "<<(value-getAccurateValue(argument,time))/value*100. <<"\n";
+                 argument+=h;
+            }
+            stream <<endl;
+        }
+    }
 }
 void NotObviousMethod::on_calculateButton_clicked()
 {
@@ -403,6 +407,7 @@ void NotObviousMethod::on_calculateButton_clicked()
     printf(outputString);
     outputString.clear();
 }
+
 void NotObviousMethod::on_equationA_valueChanged(double arg1)
 {
     setEquationA(arg1);

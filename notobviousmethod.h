@@ -51,6 +51,7 @@ private:
     double coeffMax;
     double coeffMin;
     double hMax,hMin;
+    double tMax,tMin;
     QVector< QVector<double> > X;
     QVector<double> T;
     QVector< QVector<double> > W;
@@ -68,10 +69,10 @@ private:
     QVector<double> fillYacoby(QVector<double> ws, double h, double thau);
     QVector<double> solveInterpolation(QVector<double> xOld, QVector<double> yOld, QVector<double> xNew);
     QVector<double> getDoubleX(QVector<double> oldX);
-    QVector<double> getCoeffs(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2,double h, double t,double& alphaOut);
-    QVector<double> clarifyW(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2);
-    QVector<double> createNewWeb(QVector<double> oldX, QVector<double> bettas);
-    double getEps(QVector<double> WTH, QVector<double> WTdiv2H, QVector<double> WTHdiv2);
+    QVector<double> getCoeffs(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T,double h, double t,double& alphaOut);
+    QVector<double> clarifyW(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
+    QVector<double> createNewWeb(QVector<double> oldX, QVector<double> bettas, double& h);
+    double getEps(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
     double fi(QVector<double> oldW,double wi, double wiplus1, double wiminus1,int i,double h, double thau);
     void calculateMethod();
 };
