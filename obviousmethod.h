@@ -6,6 +6,11 @@
 #include <stdio.h>
 #include <QTextStream>
 #include <QString>
+#include <QVector>
+#include <fstream>
+#include <time.h>
+
+using namespace std;
 
 namespace Ui {
 class ObviousMethod;
@@ -22,7 +27,9 @@ public:
     double getAccurateValue(double x, double t);
     double getLeftBoundaryCondition(double t);
     double getRightBoundaryCondition(double t);
-    void calculateMethod();
+    void calculateMethod(double a=0.00001,double b=0.00001,double A=0.06,double B=0.009);
+    void testConstant();
+    ofstream fout;
 
 private slots:
     void on_calculateButton_clicked();
