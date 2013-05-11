@@ -7,11 +7,12 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    //ObviousMethod obviousMethod;
-    //obviousMethod.show();
-    NotObviousMethod notObviousMethod;
-    notObviousMethod.show();
+     QApplication a(argc, argv);
+     //ObviousMethod obviousMethod;
+     //obviousMethod.testConstant();
+     //obviousMethod.show();
+     NotObviousMethod notObviousMethod;
+     notObviousMethod.show();
 
     return a.exec();
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'obviousmethod.h'
 **
-** Created: Wed 8. May 12:47:20 2013
+** Created: Fri 10. May 16:38:15 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.3)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -8,9 +8,9 @@ ObviousMethod::ObviousMethod(QWidget *parent) :
     ui->setupUi(this);
     stream.setString(&outputString);
     _thau=1.0/100.0;
-    _h=1.0/100;
+    _h=1.0/9;
     numberOfT=101;
-    numberOfX=101;
+    numberOfX=10;
     X= new double[numberOfX];
     T= new double[numberOfT];
     W= new double[numberOfT*numberOfX];

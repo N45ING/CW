@@ -16,10 +16,14 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     _thau=(rightBoundary-leftBoundary)/(numberOfT-1);
     coeffMax=4.0;
     coeffMin=0.5;
-    hMax=(rightBoundary-leftBoundary)/4.0;
-    hMin=(rightBoundary-leftBoundary)/1000.0;
+    hMax=(rightBoundary-leftBoundary)/5.0;
+    hMin=(rightBoundary-leftBoundary)/50.0;
     tMax=(rightBoundary-leftBoundary)/4.0;
     tMin=(rightBoundary-leftBoundary)/1000.0;
+    setEquationA(0.00001);
+    setEquationB(0.00001);
+    setAccurateA(0.006);
+    setAccurateB(0.009);
     edop=0.01;
 }
 
@@ -42,10 +46,11 @@ double NotObviousMethod::getAccurateValue(double x, double t)
     double x1,x2,x3;
     double expression = _accurateB-(8.0*_equationA*t);
     x1=1.0/expression;
-    x2=pow(expression,-1.0/4.0);
+    x2=powr(expression,-1.0/4.0);
     x3=expression*(_equationB/(15.0*_equationA));
     value = x1*x*x+_accurateA*x2-x3;
-    returnableValue = value*sqrt(fabs(value));
+    //returnableValue = value*sqrt(fabs(value));
+    returnableValue = powr(value,3.0/2.0);
     return returnableValue;
 }
 double NotObviousMethod::getLeftBoundaryCondition(double t)
@@ -83,7 +88,7 @@ double NotObviousMethod::powr(double x, double y)
 }
 double NotObviousMethod::getMax(QVector<double> array)
 {
-    double max=array[0];
+    double max=fabs(array[0]);
     foreach(double value, array)
     {
         if (fabs(max)<fabs(value)) max=value;
@@ -92,7 +97,7 @@ double NotObviousMethod::getMax(QVector<double> array)
 }
 double NotObviousMethod::getMin(QVector<double> array)
 {
-    double min=array[0];
+    double min=fabs(array[0]);
     foreach(double value, array)
     {
       if (fabs(min)>fabs(value)) min=value;
@@ -153,27 +158,56 @@ QVector<double> NotObviousMethod::solveGauss(QVector<double> A, QVector<double> 
 QVector<double> NotObviousMethod::calculateNewton(QVector<double> oldW, double time, double h, double thau)
 {
     QVector<double> result(oldW.size());
+    QVector<double> testResult(oldW.size());
+    testResult=oldW;
     result=oldW;
 
     result[0]=getAccurateValue(leftBoundary,time);
     result.back()=getAccurateValue(rightBoundary,time);
 
     QVector<double> du(result.size());
+    QVector<double> ddu(result.size());
+    QVector<double> olddu(result.size());
     QVector<double> A(du.size()*du.size());
     QVector<double> B(result.size());
 
+    double maxDu;
+    double maxDdu;
+    int count=0;
     for (int i=0;i<du.size();i++)
-        du[i]=5;
-    while (fabs(getMax(du))>0.005)
+    {
+        du[i]=5.0;
+        olddu[i]=5.0;
+        ddu[i]=5.0;
+    }
+    B[0]=0;
+    B[B.size()-1]=0;
+    A=fillYacoby(result,h,thau);
+    for (int i=1;i<B.size()-1;i++)
+        B[i]=-fi(oldW,result[i],result[i+1],result[i-1],i,h,thau);
+    maxDu=fabs(getMax(du));
+    maxDdu=fabs(getMax(ddu));
+    while ((maxDu>0.005 || maxDdu > 0.001) && count<100)
         {
+            olddu=solveGauss(A,B);
             B[0]=0;
             B[B.size()-1]=0;
             A=fillYacoby(result,h,thau);
             for (int i=1;i<B.size()-1;i++)
                 B[i]=-fi(oldW,result[i],result[i+1],result[i-1],i,h,thau);
             du=solveGauss(A,B);
+            for(int i=0;i<du.size();i++)
+            {
+                ddu[i]=fabs(olddu[i]-du[i]);
+            }
             for (int i=0;i<du.size();i++)
+            {
                 result[i]=result[i]+du[i];
+                testResult[i]=result[i];
+            }
+            maxDu=fabs(getMax(du));
+            maxDdu=fabs(getMax(ddu));
+            count++;
         }
     return result;
 }
@@ -284,7 +318,7 @@ QVector<double> NotObviousMethod::createNewWeb(QVector<double> oldX, QVector<dou
     }
     if (x.back()!=rightBoundary)
     {
-        qDebug() << "error in a function create new web";
+        qDebug() << "working";
         //exit(4);
     }
     return x;
@@ -313,10 +347,11 @@ double NotObviousMethod::fi(QVector<double> oldW, double wi, double wiplus1, dou
 void NotObviousMethod::calculateMethod()
 {
     int i;
-    double t=tMin;
-    double h=hMin;
-    //double h = (rightBoundary-leftBoundary)/(numberOfX-1);
-   // double t = (rightBoundary-leftBoundary)/(numberOfT-1);
+    //double t=tMin;
+   // double h=hMin;
+
+    double h = (rightBoundary-leftBoundary)/(numberOfX-1);
+    double t = (rightBoundary-leftBoundary)/(numberOfT-1);
 
     QVector< QVector<double> > Z;
     Z.push_back((QVector<double>)0);
@@ -368,18 +403,26 @@ void NotObviousMethod::calculateMethod()
         WHdiv2T=calculateNewton(WSupport,time,h/2.0,t);
 
         double eps = getEps(WHT,WHTdiv2,WHdiv2T);
-        if(fabs(eps)>edop)
+        if(fabs(eps)>edop && (h>hMin || t>tMin))
         {
+            stream<< "OTKAZ SUKA";
             h=h/2.0;
-            if(h<hMin) h=hMin;
-            if(h>hMax) h=hMax;
             time-=t;
             t=t/2;
             if(t<tMin) t=tMin;
             if(t>tMax) t=tMax;
-            supportX=getDoubleX(oldX);
-            X.back()=supportX;
-            W.back()=solveInterpolation(oldX,W.back(),supportX);
+            if(h<hMin)
+            {
+                h=hMin;
+                X.back()=oldX;
+                W.back()=W.back();
+            }
+            else
+            {
+                supportX=getDoubleX(oldX);
+                X.back()=supportX;
+                W.back()=solveInterpolation(oldX,W.back(),supportX);
+            }
         }
         else
         {

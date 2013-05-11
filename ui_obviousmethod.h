@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'obviousmethod.ui'
 **
-** Created: Thu 2. May 12:52:01 2013
+** Created: Fri 10. May 10:10:01 2013
 **      by: Qt User Interface Compiler version 4.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -36,10 +36,10 @@ public:
     {
         if (ObviousMethod->objectName().isEmpty())
             ObviousMethod->setObjectName(QString::fromUtf8("ObviousMethod"));
-        ObviousMethod->resize(799, 502);
+        ObviousMethod->resize(1052, 633);
         calculateButton = new QPushButton(ObviousMethod);
         calculateButton->setObjectName(QString::fromUtf8("calculateButton"));
-        calculateButton->setGeometry(QRect(630, 40, 75, 23));
+        calculateButton->setGeometry(QRect(350, 10, 75, 23));
         equationA = new QDoubleSpinBox(ObviousMethod);
         equationA->setObjectName(QString::fromUtf8("equationA"));
         equationA->setGeometry(QRect(30, 10, 62, 22));
@@ -54,7 +54,7 @@ public:
         accurateB->setGeometry(QRect(280, 10, 62, 22));
         plainTextEdit = new QPlainTextEdit(ObviousMethod);
         plainTextEdit->setObjectName(QString::fromUtf8("plainTextEdit"));
-        plainTextEdit->setGeometry(QRect(40, 60, 311, 421));
+        plainTextEdit->setGeometry(QRect(40, 60, 981, 551));
 
         retranslateUi(ObviousMethod);
 

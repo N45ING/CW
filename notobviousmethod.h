@@ -18,7 +18,7 @@ class NotObviousMethod : public QWidget
     Q_OBJECT
     
 public:
-    explicit NotObviousMethod(QWidget *parent = 0, int _numberOfX=20, int _numberOfT=100);
+    explicit NotObviousMethod(QWidget *parent = 0, int _numberOfX=10, int _numberOfT=100);
     ~NotObviousMethod();
     double getInitialConditions(double x);
     double getAccurateValue(double x, double t);
