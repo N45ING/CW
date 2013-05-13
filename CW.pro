@@ -13,11 +13,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
        mainwindow.cpp \
        obviousmethod.cpp \
-       notobviousmethod.cpp
+       notobviousmethod.cpp \
+    qfunc3d.cpp
 
 HEADERS  += mainwindow.h \
         obviousmethod.h \
-        notobviousmethod.h
+        notobviousmethod.h \
+    qfunc3d.h
 
 FORMS    += mainwindow.ui \
         obviousmethod.ui \

@@ -2,6 +2,7 @@
 #include "ui_notobviousmethod.h"
 #include "SLAE.h"
 
+
 NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOfT) :
     QWidget(parent),
     ui(new Ui::NotObviousMethod)
@@ -14,6 +15,9 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     ui->tabWidget->setTabText(0,"Main");
     ui->tabWidget->setTabText(1,"Graph Thau");
     ui->tabWidget->setTabText(2,"Graph H");
+    ui->tabWidget->setTabText(3,"GraphEps");
+    ui->tabWidget->setTabText(4,"GraphMistakes");
+    ui->tabWidget->setTabText(5,"Graph3D");
     stream.setString(&outputString);
     leftBoundary=0.0;
     rightBoundary=1.0;
@@ -27,12 +31,16 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     hMin=(rightBoundary-leftBoundary)/50.0;
     tMax=(rightBoundary-leftBoundary)/4.0;
     tMin=(rightBoundary-leftBoundary)/100.0;
+    /*setEquationA(0.00001);
+    setEquationB(0.0001);
+    setAccurateA(0.01);
+    setAccurateB(0.09);*/
     setEquationA(0.00001);
     setEquationB(0.00001);
-    setAccurateA(0.006);
+    setAccurateA(0.001);
     setAccurateB(0.009);
-    edop=0.001;
-    fout.open("test.out");
+    edop=0.0001;
+    fout.open("test.txt");
 }
 
 NotObviousMethod::~NotObviousMethod()
@@ -361,13 +369,14 @@ void NotObviousMethod::calculateMethod()
     double h = (rightBoundary-leftBoundary)/(numberOfX-1);
     double t = (rightBoundary-leftBoundary)/(numberOfT-1);
 
-    QVector< QVector<double> > Z;
+
     Z.push_back((QVector<double>)0);
     W.push_back((QVector<double>)0);
 
     int number=(rightBoundary-leftBoundary)/h+1;
     double XR;
     QVector<double> VXR;
+    QVector<double> mistakeHelp;
     for(XR=0,i=0;i<number;i++,XR+=h)
     {
         VXR.push_back(XR);
@@ -382,7 +391,7 @@ void NotObviousMethod::calculateMethod()
     int k=0;
     double time = leftBoundary;
     T.push_back(time);
-    while(time<rightBoundary-0.01)
+    while(time<rightBoundary-t)
     {
         time+=t;
         T.push_back(time);
@@ -413,6 +422,8 @@ void NotObviousMethod::calculateMethod()
         WHdiv2T=calculateNewton(WSupport,time,h/2.0,t);
 
         double eps = getEps(WHT,WHTdiv2,WHdiv2T);
+        //double eps = fabs(getEps(WHT,WHTdiv2,WHdiv2T));
+        EPS.push_back(eps);
         if(fabs(eps)>edop && (h>hMin || t>tMin))
         {
             h=h/2.0;
@@ -440,23 +451,30 @@ void NotObviousMethod::calculateMethod()
             double alpha;
             QVector<double> bettas=getCoeffs(WHT,WHTdiv2,WHdiv2T,h,t,alpha);
             t*=alpha;
+            if (t>tMax) t=tMax;
+            if (t<tMin) t=tMin;
             X.push_back(createNewWeb(oldX,bettas,h));
             W.push_back(solveInterpolation(oldX,WClarify,X.back()));
-
             double argument=leftBoundary;
+            mistakeHelp.clear();
             foreach (double value, W.back())
             {
-                 stream <<"time is " << time <<" yApp=  " << value <<" yAcc=  " <<getAccurateValue(argument,time) <<" absPoh=  "<< value-getAccurateValue(argument,time)  << " otnPoh=  "<<(value-getAccurateValue(argument,time))/value*100. <<"\n";
+                 stream << qSetFieldWidth(17) << "time is " << time << "yApp=  " << value <<"yAcc=  " <<getAccurateValue(argument,time) <<"absPoh=  "<< fabs(value-getAccurateValue(argument,time))  << "otnPoh=  "<<fabs((value-getAccurateValue(argument,time))/value*100.) <<"\n";
+                 mistakeHelp.push_back(fabs(value-getAccurateValue(argument,time)));
+                 //mistakeHelp.push_back(fabs((value-getAccurateValue(argument,time))/value*100.));
                  argument+=h;
                  fout << argument << " " << time << " " << value << endl;
             }
+            MISTAKE.push_back(getMax(mistakeHelp));
             stream <<endl;
         }
         k++;
     }
     displayGraphThau();
     displayGraphH();
-    stream<<"test";
+    displayGraphEps();
+    displayGraphMistakes();
+    displayGraph3D();
 }
 void NotObviousMethod::displayGraphThau()
 {
@@ -488,6 +506,77 @@ void NotObviousMethod::displayGraphH()
     testCurve->setData(steps,H);
     testPlot->replot();
 }
+void NotObviousMethod::displayGraphEps()
+{
+    QGridLayout *grLay = new QGridLayout(ui->graphEpsFrame);
+    grLay->setContentsMargins(1,1,1,1);
+    QwtText *testText = new QwtText("Graphic of eps(local mistake) dependence");
+    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphEpsFrame);
+    grLay->addWidget(testPlot,0,0);
+    QwtPlotCurve *testCurve = new QwtPlotCurve();
+    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QPen pen = QPen(Qt::blue);
+    testCurve->setPen(pen);
+    testCurve->attach(testPlot);
+    testCurve->setData(steps,EPS);
+    testPlot->replot();
+}
+void NotObviousMethod::displayGraphMistakes()
+{
+    QGridLayout *grLay = new QGridLayout(ui->graphMistakesFrame);
+    grLay->setContentsMargins(1,1,1,1);
+    QwtText *testText = new QwtText("Graphic of eps(local mistake) dependence");
+    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphMistakesFrame);
+    grLay->addWidget(testPlot,0,0);
+    QwtPlotCurve *testCurve = new QwtPlotCurve();
+    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QPen pen = QPen(Qt::blue);
+    testCurve->setPen(pen);
+    testCurve->attach(testPlot);
+    testCurve->setData(steps,MISTAKE);
+    testPlot->replot();
+}
+
+void NotObviousMethod::displayGraph3D()
+{
+    // Компоновщик
+    QGridLayout *grLay = new QGridLayout(ui->frame3D);
+    grLay->setContentsMargins(1,1,1,1);
+
+    // График
+    Qwt3D::SurfacePlot *surf;
+    surf = new Qwt3D::SurfacePlot(ui->frame3D);
+    surf->setTitle("SurfacePlot Demo");
+
+    grLay->addWidget(surf,0,0);
+
+    // Выделение памяти под массивы данных
+    const int Nd = 100;
+    const int Md = 100;
+    double *Xd = (double *)malloc((Nd+Md+Md*Nd)*sizeof(double));
+    double *Yd = Xd + Nd;
+    double *Zd = Yd + Md;
+
+    // Подготовка данных
+    double hx = 1.0/(Nd-1);  // шаг приращения по X
+    double hy = 1.0/(Md-1);  // шаг приращения по Y
+    for (int n = 0; n < Nd; n++) Xd[n] = 0 + n*hx;
+    for (int m = 0; m < Md; m++)
+    {
+      Yd[m] = 0 + m*hy;
+      for (int n = 0; n < Nd; n++)
+          Zd[m*Nd+n] = getAccurateValue(Xd[n],Yd[m]);
+    }
+    surf->setPlotStyle(Qwt3D::FILLED);
+    // Функция
+    QFunc3D *func = new QFunc3D;
+    func->attach(surf);
+    func->setData(Xd,Yd,Zd,Nd,Md);
+    func->setDomain();
+    func->setMesh(Nd,Md);
+    func->create();
+}
+
 void NotObviousMethod::on_calculateButton_clicked()
 {
     calculateMethod();

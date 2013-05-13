@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'notobviousmethod.ui'
 **
-** Created: Mon 13. May 20:30:11 2013
+** Created: Mon 13. May 22:16:43 2013
 **      by: Qt User Interface Compiler version 4.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -39,6 +39,12 @@ public:
     QFrame *graphThauFrame;
     QWidget *tabThree;
     QFrame *graphHFrame;
+    QWidget *tabFour;
+    QFrame *graphEpsFrame;
+    QWidget *tabFive;
+    QFrame *graphMistakesFrame;
+    QWidget *tabSix;
+    QFrame *frame3D;
 
     void setupUi(QWidget *NotObviousMethod)
     {
@@ -92,10 +98,34 @@ public:
         graphHFrame->setFrameShape(QFrame::StyledPanel);
         graphHFrame->setFrameShadow(QFrame::Raised);
         tabWidget->addTab(tabThree, QString());
+        tabFour = new QWidget();
+        tabFour->setObjectName(QString::fromUtf8("tabFour"));
+        graphEpsFrame = new QFrame(tabFour);
+        graphEpsFrame->setObjectName(QString::fromUtf8("graphEpsFrame"));
+        graphEpsFrame->setGeometry(QRect(190, 30, 581, 271));
+        graphEpsFrame->setFrameShape(QFrame::StyledPanel);
+        graphEpsFrame->setFrameShadow(QFrame::Raised);
+        tabWidget->addTab(tabFour, QString());
+        tabFive = new QWidget();
+        tabFive->setObjectName(QString::fromUtf8("tabFive"));
+        graphMistakesFrame = new QFrame(tabFive);
+        graphMistakesFrame->setObjectName(QString::fromUtf8("graphMistakesFrame"));
+        graphMistakesFrame->setGeometry(QRect(140, 30, 681, 501));
+        graphMistakesFrame->setFrameShape(QFrame::StyledPanel);
+        graphMistakesFrame->setFrameShadow(QFrame::Raised);
+        tabWidget->addTab(tabFive, QString());
+        tabSix = new QWidget();
+        tabSix->setObjectName(QString::fromUtf8("tabSix"));
+        frame3D = new QFrame(tabSix);
+        frame3D->setObjectName(QString::fromUtf8("frame3D"));
+        frame3D->setGeometry(QRect(20, 10, 791, 521));
+        frame3D->setFrameShape(QFrame::StyledPanel);
+        frame3D->setFrameShadow(QFrame::Raised);
+        tabWidget->addTab(tabSix, QString());
 
         retranslateUi(NotObviousMethod);
 
-        tabWidget->setCurrentIndex(2);
+        tabWidget->setCurrentIndex(4);
 
 
         QMetaObject::connectSlotsByName(NotObviousMethod);
@@ -108,6 +138,9 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tabOne), QApplication::translate("NotObviousMethod", "Tab 1", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabTwo), QApplication::translate("NotObviousMethod", "Tab 2", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabThree), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tabFour), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tabFive), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tabSix), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

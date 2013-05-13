@@ -15,6 +15,8 @@
 #include <qwt.h>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
+#include "qfunc3d.h"
+#include <qwt3d_surfaceplot.h>
 
 using namespace std;
 namespace Ui {
@@ -67,7 +69,10 @@ private:
     QVector<double> THAU;
     QVector<double> H;
     QVector<double> steps;
+    QVector<double> MISTAKE;
+    QVector<double> EPS;
     QVector< QVector<double> > W;
+    QVector< QVector<double> > Z;
     void printf(QString string);
     QString outputString;
     QTextStream stream;
@@ -90,6 +95,9 @@ private:
     void calculateMethod();
     void displayGraphThau();
     void displayGraphH();
+    void displayGraphEps();
+    void displayGraphMistakes();
+    void displayGraph3D();
 };
 
 #endif // NOTOBVIOUSMETHOD_H
