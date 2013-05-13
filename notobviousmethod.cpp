@@ -7,6 +7,13 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     ui(new Ui::NotObviousMethod)
 {
     ui->setupUi(this);
+    ui->accurateA->setVisible(false);
+    ui->accurateB->setVisible(false);
+    ui->equationA->setVisible(false);
+    ui->equationB->setVisible(false);
+    ui->tabWidget->setTabText(0,"Main");
+    ui->tabWidget->setTabText(1,"Graph Thau");
+    ui->tabWidget->setTabText(2,"Graph H");
     stream.setString(&outputString);
     leftBoundary=0.0;
     rightBoundary=1.0;
@@ -19,12 +26,13 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     hMax=(rightBoundary-leftBoundary)/5.0;
     hMin=(rightBoundary-leftBoundary)/50.0;
     tMax=(rightBoundary-leftBoundary)/4.0;
-    tMin=(rightBoundary-leftBoundary)/1000.0;
+    tMin=(rightBoundary-leftBoundary)/100.0;
     setEquationA(0.00001);
     setEquationB(0.00001);
     setAccurateA(0.006);
     setAccurateB(0.009);
-    edop=0.01;
+    edop=0.001;
+    fout.open("test.out");
 }
 
 NotObviousMethod::~NotObviousMethod()
@@ -97,10 +105,10 @@ double NotObviousMethod::getMax(QVector<double> array)
 }
 double NotObviousMethod::getMin(QVector<double> array)
 {
-    double min=fabs(array[0]);
+    double min=array[0];
     foreach(double value, array)
     {
-      if (fabs(min)>fabs(value)) min=value;
+      if (min>value) min=value;
     }
     return min;
 }
@@ -187,7 +195,7 @@ QVector<double> NotObviousMethod::calculateNewton(QVector<double> oldW, double t
         B[i]=-fi(oldW,result[i],result[i+1],result[i-1],i,h,thau);
     maxDu=fabs(getMax(du));
     maxDdu=fabs(getMax(ddu));
-    while ((maxDu>0.005 || maxDdu > 0.001) && count<100)
+    while ((maxDu>0.005 || maxDdu > 0.001) && count<1000)
         {
             olddu=solveGauss(A,B);
             B[0]=0;
@@ -285,7 +293,7 @@ QVector<double> NotObviousMethod::getCoeffs(QVector<double> WHT, QVector<double>
     QVector<double> e1(WHT.size());
     for (int i=0;i<e1.size();i++)
     {
-        e1[i]=edop-fabs(C1[i])*pow(alpha*t,2);
+        e1[i]=edop-fabs(C1[i])*pow(alpha*t,2.0);
         bettai[i]=1.0/h*sqrt(e1[i]/(alpha*t*fabs(C2[i])));
     }
     alphaOut=alpha;
@@ -318,7 +326,7 @@ QVector<double> NotObviousMethod::createNewWeb(QVector<double> oldX, QVector<dou
     }
     if (x.back()!=rightBoundary)
     {
-        qDebug() << "working";
+        qDebug() << "working...";
         //exit(4);
     }
     return x;
@@ -338,7 +346,7 @@ double NotObviousMethod::fi(QVector<double> oldW, double wi, double wiplus1, dou
 {
     double x1,x2,x3,x4,x5;
     x1=powr(wi,-1.0/3.0);
-    x2=powr((wiplus1-wiminus1)/(2*h),-1.0/3.0);
+    x2=powr((wiplus1-wiminus1)/(2.0*h),-1.0/3.0);
     x3=powr(wi,2.0/3.0);
     x4=(wiminus1-2*wi+wiplus1)/(h*h);
     x5=thau*_equationB*powr(wi,1.0/3.0);
@@ -348,7 +356,7 @@ void NotObviousMethod::calculateMethod()
 {
     int i;
     //double t=tMin;
-   // double h=hMin;
+    //double h=hMin;
 
     double h = (rightBoundary-leftBoundary)/(numberOfX-1);
     double t = (rightBoundary-leftBoundary)/(numberOfT-1);
@@ -371,14 +379,16 @@ void NotObviousMethod::calculateMethod()
         W[0].push_back(getAccurateValue(value,0));
         Z[0].push_back(getAccurateValue(value,0));
     }
-
+    int k=0;
     double time = leftBoundary;
     T.push_back(time);
-
-    while(time<rightBoundary)
+    while(time<rightBoundary-0.01)
     {
         time+=t;
         T.push_back(time);
+        H.push_back(h);
+        THAU.push_back(t);
+        steps.push_back(k);
         Z.push_back((QVector<double>)0);
         for (i=0;i<X[0].size();i++)
         {
@@ -405,7 +415,6 @@ void NotObviousMethod::calculateMethod()
         double eps = getEps(WHT,WHTdiv2,WHdiv2T);
         if(fabs(eps)>edop && (h>hMin || t>tMin))
         {
-            stream<< "OTKAZ SUKA";
             h=h/2.0;
             time-=t;
             t=t/2;
@@ -423,6 +432,7 @@ void NotObviousMethod::calculateMethod()
                 X.back()=supportX;
                 W.back()=solveInterpolation(oldX,W.back(),supportX);
             }
+            qDebug() << "OTKAZ " << "h= " << h << "t= "<<t << "time is" << time << "eps is" << fabs(eps);
         }
         else
         {
@@ -438,10 +448,45 @@ void NotObviousMethod::calculateMethod()
             {
                  stream <<"time is " << time <<" yApp=  " << value <<" yAcc=  " <<getAccurateValue(argument,time) <<" absPoh=  "<< value-getAccurateValue(argument,time)  << " otnPoh=  "<<(value-getAccurateValue(argument,time))/value*100. <<"\n";
                  argument+=h;
+                 fout << argument << " " << time << " " << value << endl;
             }
             stream <<endl;
         }
+        k++;
     }
+    displayGraphThau();
+    displayGraphH();
+    stream<<"test";
+}
+void NotObviousMethod::displayGraphThau()
+{
+    QGridLayout *grLay = new QGridLayout(ui->graphThauFrame);
+    grLay->setContentsMargins(1,1,1,1);
+    QwtText *testText = new QwtText("Graphic of thau(time step) dependence");
+    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphThauFrame);
+    grLay->addWidget(testPlot,0,0);
+    QwtPlotCurve *testCurve = new QwtPlotCurve();
+    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QPen pen = QPen(Qt::blue);
+    testCurve->setPen(pen);
+    testCurve->attach(testPlot);
+    testCurve->setData(steps,THAU);
+    testPlot->replot();
+}
+void NotObviousMethod::displayGraphH()
+{
+    QGridLayout *grLay = new QGridLayout(ui->graphHFrame);
+    grLay->setContentsMargins(1,1,1,1);
+    QwtText *testText = new QwtText("Graphic of h(space step) dependence");
+    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphHFrame);
+    grLay->addWidget(testPlot,0,0);
+    QwtPlotCurve *testCurve = new QwtPlotCurve();
+    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    QPen pen = QPen(Qt::blue);
+    testCurve->setPen(pen);
+    testCurve->attach(testPlot);
+    testCurve->setData(steps,H);
+    testPlot->replot();
 }
 void NotObviousMethod::on_calculateButton_clicked()
 {
@@ -450,7 +495,6 @@ void NotObviousMethod::on_calculateButton_clicked()
     printf(outputString);
     outputString.clear();
 }
-
 void NotObviousMethod::on_equationA_valueChanged(double arg1)
 {
     setEquationA(arg1);
@@ -467,3 +511,4 @@ void NotObviousMethod::on_accurateB_valueChanged(double arg1)
 {
     setAccurateB(arg1);
 }
+

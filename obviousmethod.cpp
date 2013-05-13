@@ -151,7 +151,7 @@ void ObviousMethod::calculateMethod(double a, double b, double A, double B)
 void ObviousMethod::testConstant()
 {
     const long max_rand = 1000000L;
-    double x1 = 0, x2 = 10;
+    double x1 = 0, x2 = 0.1;
     double a,b,A,B;
     srand(time(NULL));
     for(int i=0;i<10000;i++)
@@ -159,7 +159,7 @@ void ObviousMethod::testConstant()
         a = x1 + ( x2 - x1) * (rand() % max_rand) / max_rand;
         b = x1 + ( x2 - x1) * (rand() % max_rand) / max_rand;
         A = x1 + ( x2 - x1) * (rand() % max_rand) / max_rand +b;
-        B = x1 + ( x2 - x1) * (rand() % max_rand) / max_rand +8*a;
+        B = x1 + ( x2 - x1) * (rand() % max_rand) / max_rand +a*1000;
         calculateMethod(a,b,A,B);
     }
 }

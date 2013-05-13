@@ -3,12 +3,20 @@
 
 #include <QWidget>
 #include <QTextStream>
+#include <QLayout>
+#include <QFormLayout>
+#include <QGridLayout>
 #include <QString>
 #include <QVector>
 #include <QDebug>
 #include <math.h>
 #include <iostream>
+#include <fstream>
+#include <qwt.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
+using namespace std;
 namespace Ui {
 class NotObviousMethod;
 }
@@ -18,18 +26,20 @@ class NotObviousMethod : public QWidget
     Q_OBJECT
     
 public:
-    explicit NotObviousMethod(QWidget *parent = 0, int _numberOfX=10, int _numberOfT=100);
+    explicit NotObviousMethod(QWidget *parent = 0, int _numberOfX=20, int _numberOfT=100);
     ~NotObviousMethod();
     double getInitialConditions(double x);
     double getAccurateValue(double x, double t);
     double getLeftBoundaryCondition(double t);
     double getRightBoundaryCondition(double t);
+    ofstream fout;
 private slots:
     void on_calculateButton_clicked();
     void on_equationA_valueChanged(double arg1);
     void on_equationB_valueChanged(double arg1);
     void on_accurateA_valueChanged(double arg1);
     void on_accurateB_valueChanged(double arg1);
+
 private:
     Ui::NotObviousMethod *ui;
     double _equationA;
@@ -54,6 +64,9 @@ private:
     double tMax,tMin;
     QVector< QVector<double> > X;
     QVector<double> T;
+    QVector<double> THAU;
+    QVector<double> H;
+    QVector<double> steps;
     QVector< QVector<double> > W;
     void printf(QString string);
     QString outputString;
@@ -75,6 +88,8 @@ private:
     double getEps(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
     double fi(QVector<double> oldW,double wi, double wiplus1, double wiminus1,int i,double h, double thau);
     void calculateMethod();
+    void displayGraphThau();
+    void displayGraphH();
 };
 
 #endif // NOTOBVIOUSMETHOD_H
