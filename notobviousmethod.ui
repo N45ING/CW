@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>6</number>
    </property>
    <widget class="QWidget" name="tabOne">
     <attribute name="title">
@@ -197,6 +197,27 @@
        <y>10</y>
        <width>791</width>
        <height>521</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabSeven">
+    <attribute name="title">
+     <string>Page</string>
+    </attribute>
+    <widget class="QFrame" name="graphGridFrame">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>40</y>
+       <width>521</width>
+       <height>421</height>
       </rect>
      </property>
      <property name="frameShape">

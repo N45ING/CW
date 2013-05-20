@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'notobviousmethod.ui'
 **
-** Created: Mon 13. May 22:16:43 2013
+** Created: Sun 19. May 23:19:17 2013
 **      by: Qt User Interface Compiler version 4.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -45,6 +45,8 @@ public:
     QFrame *graphMistakesFrame;
     QWidget *tabSix;
     QFrame *frame3D;
+    QWidget *tabSeven;
+    QFrame *graphGridFrame;
 
     void setupUi(QWidget *NotObviousMethod)
     {
@@ -122,10 +124,18 @@ public:
         frame3D->setFrameShape(QFrame::StyledPanel);
         frame3D->setFrameShadow(QFrame::Raised);
         tabWidget->addTab(tabSix, QString());
+        tabSeven = new QWidget();
+        tabSeven->setObjectName(QString::fromUtf8("tabSeven"));
+        graphGridFrame = new QFrame(tabSeven);
+        graphGridFrame->setObjectName(QString::fromUtf8("graphGridFrame"));
+        graphGridFrame->setGeometry(QRect(180, 40, 521, 421));
+        graphGridFrame->setFrameShape(QFrame::StyledPanel);
+        graphGridFrame->setFrameShadow(QFrame::Raised);
+        tabWidget->addTab(tabSeven, QString());
 
         retranslateUi(NotObviousMethod);
 
-        tabWidget->setCurrentIndex(4);
+        tabWidget->setCurrentIndex(6);
 
 
         QMetaObject::connectSlotsByName(NotObviousMethod);
@@ -141,6 +151,7 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tabFour), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabFive), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabSix), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tabSeven), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -37,10 +37,62 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     setAccurateB(0.09);*/
     setEquationA(0.00001);
     setEquationB(0.00001);
-    setAccurateA(0.001);
-    setAccurateB(0.009);
-    edop=0.0001;
-    fout.open("test.txt");
+    setAccurateA(0.0001);
+    setAccurateB(0.09);
+    edop=0.01;
+    fout.open("graphic.txt");
+
+    globalPen = QPen(Qt::blue);
+    thauGraphText = new QwtText("Graphic of thau(time step) dependence");
+    thauGraphPlot = new QwtPlot(*thauGraphText,ui->graphThauFrame);
+    thauGraphLayout = new QGridLayout(ui->graphThauFrame);
+    thauGraphLayout->setContentsMargins(1,1,1,1);
+    thauGraphLayout->addWidget(thauGraphPlot,0,0);
+    thauGraphCurve= new QwtPlotCurve();
+    thauGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    thauGraphCurve->setPen(globalPen);
+    thauGraphCurve->attach(thauGraphPlot);
+
+    hGraphText = new QwtText("Graphic of h(space step) dependence");
+    hGraphPlot = new QwtPlot(*hGraphText,ui->graphHFrame);
+    hGraphLayout = new QGridLayout(ui->graphHFrame);
+    hGraphLayout->setContentsMargins(1,1,1,1);
+    hGraphLayout->addWidget(hGraphPlot,0,0);
+    hGraphCurve= new QwtPlotCurve();
+    hGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    hGraphCurve->setPen(globalPen);
+    hGraphCurve->attach(hGraphPlot);
+
+
+    epsGraphText = new QwtText("Graphic of eps(local mistake) dependence");
+    epsGraphPlot = new QwtPlot(*epsGraphText,ui->graphEpsFrame);
+    epsGraphLayout = new QGridLayout(ui->graphEpsFrame);
+    epsGraphLayout->setContentsMargins(1,1,1,1);
+    epsGraphLayout->addWidget(epsGraphPlot,0,0);
+    epsGraphCurve= new QwtPlotCurve();
+    epsGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    epsGraphCurve->setPen(globalPen);
+    epsGraphCurve->attach(epsGraphPlot);
+
+    mistakesGraphText = new QwtText("Graphic of mistakes dependence");
+    mistakesGraphPlot = new QwtPlot(*mistakesGraphText,ui->graphMistakesFrame);
+    mistakesGraphLayout = new QGridLayout(ui->graphMistakesFrame);
+    mistakesGraphLayout->setContentsMargins(1,1,1,1);
+    mistakesGraphLayout->addWidget(mistakesGraphPlot,0,0);
+    mistakesGraphCurve= new QwtPlotCurve();
+    mistakesGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    mistakesGraphCurve->setPen(globalPen);
+    mistakesGraphCurve->attach(mistakesGraphPlot);
+
+    gridGraphText = new QwtText("GRID");
+    gridGraphPlot = new QwtPlot(*gridGraphText,ui->graphGridFrame);
+    gridGraphLayout = new QGridLayout(ui->graphGridFrame);
+    gridGraphLayout->setContentsMargins(1,1,1,1);
+    gridGraphLayout->addWidget(gridGraphPlot,0,0);
+    gridGraphCurve= new QwtPlotCurve();
+    gridGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    gridGraphCurve->setPen(globalPen);
+    gridGraphCurve->attach(gridGraphPlot);
 }
 
 NotObviousMethod::~NotObviousMethod()
@@ -147,6 +199,60 @@ double NotObviousMethod::dfdwiplus1(double wiminus1, double wi, double wiplus1, 
     x3=powr((wiplus1-wiminus1)/h,4.0/3.0);
     return _equationA*thau*(x1 - (2.0*pow(2.0,1.0/3.0))/(x2*x3));
 }
+double* NotObviousMethod::SLAU(double *a, double *b, int n)
+{
+    double *x = new double[n+1];
+    double R;
+    for (int k=1;k<=n;k++)
+    {
+        for (int i=0;i<=k-1;i++)
+        {
+            R=a[k*n+i] / a[i*n+i];
+           for (int j=i;j<=n;j++)
+               {
+                   a[k*n+j]=a[k*n+j]-R*a[i*n+j];
+               }
+               b[k]=b[k]-R*b[i];
+           }
+           for (int i=0;i<=k-1;i++)
+           {
+               R=a[i*n+k]/a[k*n+k];
+               for (int j=k;j<=n;j++)
+                   a[i*n+j]=a[i*n+j]-R*a[k*n+j];
+               b[i]=b[i]-R*b[k];
+           }
+       }
+       for (int i=0;i<=n;i++)
+           x[i]=b[i]/a[i*n+i];
+
+       return x;
+}
+QVector<double> NotObviousMethod::solveExclusion(QVector<double> A, QVector<double> B)
+{
+
+    QVector<double> result;
+    double *matrixA = new double[A.size()];
+    double *rowB = new double[B.size()];
+    double *rowR = new double [B.size()];
+    for (int i=0;i<A.size();i++)
+    {
+        matrixA[i]=A[i];
+    }
+    for(int i=0;i<B.size();i++)
+    {
+        rowB[i]=B[i];
+    }
+    rowR = SLAU(matrixA,rowB,B.size());
+    for(int i=0;i<B.size();i++)
+    {
+        result.push_back(rowR[i]);
+    }
+    delete [] matrixA;
+    delete [] rowB;
+    delete [] rowR;
+    return result;
+}
+
 QVector<double> NotObviousMethod::solveGauss(QVector<double> A, QVector<double> B)
 {
     QVector<double> result;
@@ -245,7 +351,6 @@ QVector<double> NotObviousMethod::solveInterpolation(QVector<double> xOld, QVect
     const int sizeXNew = xNew.size();
     const int sizeXOld = xOld.size();
     QVector<double> yNew(sizeXNew);
-    QVector<double> yCopy(sizeXNew);
     double Fi = 0;
     double p1 = 1;
     double p2 = 1;
@@ -267,10 +372,24 @@ QVector<double> NotObviousMethod::solveInterpolation(QVector<double> xOld, QVect
                     Fi = Fi + yOld[i] * p1 / p2;
                 }
         yNew[k] = Fi;
-        yCopy[k] =Fi;
     }
     return yNew;
 }
+QVector<double> NotObviousMethod::solveInterpolation1(QVector<double> oldX, QVector<double> oldY, QVector<double> xNew)
+{
+    QVector<double> y;
+        foreach (double x, xNew)
+        {
+            int i=0;
+            if (x>oldX.back()) i=oldX.size()-2;
+            while(x>oldX[i]&&x<oldX.back())
+                if (x<oldX[i+1]) break;
+                else i++;
+            y.push_back((x*oldY[i]-x*oldY[i+1]+oldX[i]*oldY[i+1]-oldX[i+1]*oldY[i])/(oldX[i]-oldX[i+1]));
+        }
+        return y;
+}
+
 QVector<double> NotObviousMethod::getDoubleX(QVector<double> oldX)
 {
     QVector<double> newX(oldX.size()*2-1);
@@ -369,7 +488,6 @@ void NotObviousMethod::calculateMethod()
     double h = (rightBoundary-leftBoundary)/(numberOfX-1);
     double t = (rightBoundary-leftBoundary)/(numberOfT-1);
 
-
     Z.push_back((QVector<double>)0);
     W.push_back((QVector<double>)0);
 
@@ -391,13 +509,14 @@ void NotObviousMethod::calculateMethod()
     int k=0;
     double time = leftBoundary;
     T.push_back(time);
-    while(time<rightBoundary-t)
+
+    do
     {
         time+=t;
         T.push_back(time);
-        H.push_back(h);
+        /*H.push_back(h);
         THAU.push_back(t);
-        steps.push_back(k);
+        steps.push_back(k);*/
         Z.push_back((QVector<double>)0);
         for (i=0;i<X[0].size();i++)
         {
@@ -421,9 +540,9 @@ void NotObviousMethod::calculateMethod()
         WSupport=solveInterpolation(oldX,W.back(),doubleX);
         WHdiv2T=calculateNewton(WSupport,time,h/2.0,t);
 
-        double eps = getEps(WHT,WHTdiv2,WHdiv2T);
-        //double eps = fabs(getEps(WHT,WHTdiv2,WHdiv2T));
-        EPS.push_back(eps);
+        //double eps = getEps(WHT,WHTdiv2,WHdiv2T);
+        double eps = fabs(getEps(WHT,WHTdiv2,WHdiv2T));
+        //EPS.push_back(eps); неприйняті
         if(fabs(eps)>edop && (h>hMin || t>tMin))
         {
             h=h/2.0;
@@ -447,6 +566,7 @@ void NotObviousMethod::calculateMethod()
         }
         else
         {
+            EPS.push_back(eps); // прийняті епс
             WClarify=clarifyW(WHT,WHTdiv2,WHdiv2T);
             double alpha;
             QVector<double> bettas=getCoeffs(WHT,WHTdiv2,WHdiv2T,h,t,alpha);
@@ -454,6 +574,10 @@ void NotObviousMethod::calculateMethod()
             if (t>tMax) t=tMax;
             if (t<tMin) t=tMin;
             X.push_back(createNewWeb(oldX,bettas,h));
+            H.push_back(h);
+            THAU.push_back(t);
+            steps.push_back(k);
+            k++;
             W.push_back(solveInterpolation(oldX,WClarify,X.back()));
             double argument=leftBoundary;
             mistakeHelp.clear();
@@ -468,73 +592,49 @@ void NotObviousMethod::calculateMethod()
             MISTAKE.push_back(getMax(mistakeHelp));
             stream <<endl;
         }
-        k++;
-    }
+        //k++;
+    }while(time<rightBoundary-t);
     displayGraphThau();
     displayGraphH();
     displayGraphEps();
     displayGraphMistakes();
     displayGraph3D();
+    displayGrid();
 }
 void NotObviousMethod::displayGraphThau()
 {
-    QGridLayout *grLay = new QGridLayout(ui->graphThauFrame);
-    grLay->setContentsMargins(1,1,1,1);
-    QwtText *testText = new QwtText("Graphic of thau(time step) dependence");
-    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphThauFrame);
-    grLay->addWidget(testPlot,0,0);
-    QwtPlotCurve *testCurve = new QwtPlotCurve();
-    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QPen pen = QPen(Qt::blue);
-    testCurve->setPen(pen);
-    testCurve->attach(testPlot);
-    testCurve->setData(steps,THAU);
-    testPlot->replot();
+    thauGraphCurve->setData(steps,THAU);
+    thauGraphPlot->replot();
 }
 void NotObviousMethod::displayGraphH()
 {
-    QGridLayout *grLay = new QGridLayout(ui->graphHFrame);
-    grLay->setContentsMargins(1,1,1,1);
-    QwtText *testText = new QwtText("Graphic of h(space step) dependence");
-    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphHFrame);
-    grLay->addWidget(testPlot,0,0);
-    QwtPlotCurve *testCurve = new QwtPlotCurve();
-    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QPen pen = QPen(Qt::blue);
-    testCurve->setPen(pen);
-    testCurve->attach(testPlot);
-    testCurve->setData(steps,H);
-    testPlot->replot();
+    hGraphCurve->setData(steps,H);
+    hGraphPlot->replot();
 }
 void NotObviousMethod::displayGraphEps()
 {
-    QGridLayout *grLay = new QGridLayout(ui->graphEpsFrame);
-    grLay->setContentsMargins(1,1,1,1);
-    QwtText *testText = new QwtText("Graphic of eps(local mistake) dependence");
-    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphEpsFrame);
-    grLay->addWidget(testPlot,0,0);
-    QwtPlotCurve *testCurve = new QwtPlotCurve();
-    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QPen pen = QPen(Qt::blue);
-    testCurve->setPen(pen);
-    testCurve->attach(testPlot);
-    testCurve->setData(steps,EPS);
-    testPlot->replot();
+    epsGraphCurve->setData(steps,EPS);
+    epsGraphPlot->replot();
 }
 void NotObviousMethod::displayGraphMistakes()
 {
-    QGridLayout *grLay = new QGridLayout(ui->graphMistakesFrame);
-    grLay->setContentsMargins(1,1,1,1);
-    QwtText *testText = new QwtText("Graphic of eps(local mistake) dependence");
-    QwtPlot *testPlot = new QwtPlot(*testText,ui->graphMistakesFrame);
-    grLay->addWidget(testPlot,0,0);
-    QwtPlotCurve *testCurve = new QwtPlotCurve();
-    testCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    QPen pen = QPen(Qt::blue);
-    testCurve->setPen(pen);
-    testCurve->attach(testPlot);
-    testCurve->setData(steps,MISTAKE);
-    testPlot->replot();
+    mistakesGraphCurve->setData(steps,MISTAKE);
+    mistakesGraphPlot->replot();
+}
+void NotObviousMethod::displayGrid()
+{
+    QVector<double> testT;
+    testT.push_back(THAU[0]);
+    for(int i=1;i<THAU.size();i++)
+    {
+        testT.push_back(THAU[i]+testT[i-1]);
+    }
+    for(int i=0;i<testT.size();i++)
+    {
+        qDebug() << testT[i] << "  ";
+    }
+    //gridGraphCurve->setData();
+    //gridGraphPlot->replot();
 }
 
 void NotObviousMethod::displayGraph3D()
@@ -546,7 +646,7 @@ void NotObviousMethod::displayGraph3D()
     // График
     Qwt3D::SurfacePlot *surf;
     surf = new Qwt3D::SurfacePlot(ui->frame3D);
-    surf->setTitle("SurfacePlot Demo");
+    surf->setTitle("Accurate Solution Graphic");
 
     grLay->addWidget(surf,0,0);
 

@@ -8,10 +8,10 @@
 int main(int argc, char *argv[])
 {
      QApplication a(argc, argv);
-     //ObviousMethod obviousMethod;
+    // ObviousMethod obviousMethod;
      // obviousMethod.testConstant();
-   //   obviousMethod.show();
-     NotObviousMethod notObviousMethod;
+     //obviousMethod.show();
+    NotObviousMethod notObviousMethod;
      notObviousMethod.show();
     return a.exec();
 }

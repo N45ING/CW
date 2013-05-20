@@ -31,6 +31,7 @@ public:
     void calculateMethod(double a=0.00001,double b=0.00001,double A=0.06,double B=0.009);
     void testConstant();
     ofstream fout;
+    ofstream graph;
 
 private slots:
     void on_calculateButton_clicked();

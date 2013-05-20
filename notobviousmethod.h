@@ -18,6 +18,7 @@
 #include "qfunc3d.h"
 #include <qwt3d_surfaceplot.h>
 
+
 using namespace std;
 namespace Ui {
 class NotObviousMethod;
@@ -82,10 +83,13 @@ private:
     double dfdwiminus1(double wiminus1, double wi, double wiplus1, double h, double thau);
     double dfdwi(double wiminus1, double wi, double wiplus1, double h, double thau);
     double dfdwiplus1(double wiminus1, double wi, double wiplus1, double h, double thau);
+    double* SLAU(double *a, double *b, int n);
+    QVector<double> solveExclusion(QVector<double> A, QVector<double> B);
     QVector<double> solveGauss(QVector<double> A, QVector<double> B);
     QVector<double> calculateNewton(QVector<double> oldW,double time, double h, double thau);
     QVector<double> fillYacoby(QVector<double> ws, double h, double thau);
     QVector<double> solveInterpolation(QVector<double> xOld, QVector<double> yOld, QVector<double> xNew);
+    QVector<double> solveInterpolation1(QVector<double> oldX, QVector<double> oldY, QVector<double> xNew);
     QVector<double> getDoubleX(QVector<double> oldX);
     QVector<double> getCoeffs(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T,double h, double t,double& alphaOut);
     QVector<double> clarifyW(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
@@ -93,11 +97,41 @@ private:
     double getEps(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
     double fi(QVector<double> oldW,double wi, double wiplus1, double wiminus1,int i,double h, double thau);
     void calculateMethod();
+
+    /* змінні для графіки */
+    QPen globalPen;
+    QwtText *thauGraphText;
+    QwtPlot *thauGraphPlot;
+    QGridLayout *thauGraphLayout;
+    QwtPlotCurve *thauGraphCurve;
+
+    QwtText *hGraphText;
+    QwtPlot *hGraphPlot;
+    QGridLayout *hGraphLayout;
+    QwtPlotCurve *hGraphCurve;
+
+    QwtText *epsGraphText;
+    QwtPlot *epsGraphPlot;
+    QGridLayout *epsGraphLayout;
+    QwtPlotCurve *epsGraphCurve;
+
+    QwtText *mistakesGraphText;
+    QwtPlot *mistakesGraphPlot;
+    QGridLayout *mistakesGraphLayout;
+    QwtPlotCurve *mistakesGraphCurve;
+
+    QwtText *gridGraphText;
+    QwtPlot *gridGraphPlot;
+    QGridLayout *gridGraphLayout;
+    QwtPlotCurve *gridGraphCurve;
+
+
     void displayGraphThau();
     void displayGraphH();
     void displayGraphEps();
     void displayGraphMistakes();
     void displayGraph3D();
+    void displayGrid();
 };
 
 #endif // NOTOBVIOUSMETHOD_H

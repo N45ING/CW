@@ -15,6 +15,7 @@ ObviousMethod::ObviousMethod(QWidget *parent) :
     T= new double[numberOfT];
     W= new double[numberOfT*numberOfX];
     fout.open("test.out");
+    graph.open("graph_obvious.txt");
 }
 ObviousMethod::~ObviousMethod()
 {
@@ -128,7 +129,8 @@ void ObviousMethod::calculateMethod(double a, double b, double A, double B)
         //stream << W[k*n+4]<<" ";
         for(i=0;i<numberOfX;i++)
         {
-            stream << "time is " << T[k] << "    yApp " << W[k*n+i] << "   yAcc " << Accurate[k*n+i] << endl;
+            stream << qSetFieldWidth(15)<< "time is " << T[k] << " yApp " << W[k*n+i] << " yAcc " << Accurate[k*n+i] << "      absPoh" << fabs(W[k*n+i]-Accurate[k*n+i])<< "      otnPoh=  "<< fabs((W[k*n+i]-Accurate[k*n+i])/W[k*n+i]*100.)<<endl;
+            graph << X[i] << " " << T[k] << " " << W[k*n+i] << endl;
         }
         stream<<endl;
     }
