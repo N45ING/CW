@@ -19,7 +19,3 @@ void MainWindow::on_actionExit_triggered()
 {
     MainWindow::close();
 }
-
-void MainWindow::on_pushButton_clicked()
-{
-}

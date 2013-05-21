@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'obviousmethod.h'
 **
-** Created: Tue 14. May 10:12:06 2013
+** Created: Tue 21. May 11:51:40 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ObviousMethod[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -36,10 +36,6 @@ static const uint qt_meta_data_ObviousMethod[] = {
       69,   67,   14,   14, 0x08,
       90,   44,   14,   14, 0x08,
      111,   67,   14,   14, 0x08,
-     137,  132,   14,   14, 0x08,
-     171,  132,   14,   14, 0x08,
-     205,  132,   14,   14, 0x08,
-     239,  132,   14,   14, 0x08,
 
        0        // eod
 };
@@ -48,10 +44,6 @@ static const char qt_meta_stringdata_ObviousMethod[] = {
     "ObviousMethod\0\0on_calculateButton_clicked()\0"
     "a\0setEquationA(double)\0b\0setEquationB(double)\0"
     "setAccurateA(double)\0setAccurateB(double)\0"
-    "arg1\0on_equationA_valueChanged(double)\0"
-    "on_equationB_valueChanged(double)\0"
-    "on_accurateA_valueChanged(double)\0"
-    "on_accurateB_valueChanged(double)\0"
 };
 
 void ObviousMethod::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -65,10 +57,6 @@ void ObviousMethod::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         case 2: _t->setEquationB((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 3: _t->setAccurateA((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 4: _t->setAccurateB((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 5: _t->on_equationA_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 6: _t->on_equationB_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 7: _t->on_accurateA_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 8: _t->on_accurateB_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -106,9 +94,9 @@ int ObviousMethod::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 5;
     }
     return _id;
 }

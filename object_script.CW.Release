@@ -1,0 +1,12 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\obviousmethod.o
+./release\notobviousmethod.o
+./release\qfunc3d.o
+./release\widget.o
+./release\moc_mainwindow.o
+./release\moc_obviousmethod.o
+./release\moc_notobviousmethod.o
+./release\moc_widget.o
+);

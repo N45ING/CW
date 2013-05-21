@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'notobviousmethod.h'
 **
-** Created: Sun 19. May 23:40:50 2013
+** Created: Mon 20. May 21:41:29 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_NotObviousMethod[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -36,6 +36,7 @@ static const uint qt_meta_data_NotObviousMethod[] = {
       86,   47,   17,   17, 0x08,
      120,   47,   17,   17, 0x08,
      154,   47,   17,   17, 0x08,
+     188,   47,   17,   17, 0x08,
 
        0        // eod
 };
@@ -46,6 +47,7 @@ static const char qt_meta_stringdata_NotObviousMethod[] = {
     "on_equationB_valueChanged(double)\0"
     "on_accurateA_valueChanged(double)\0"
     "on_accurateB_valueChanged(double)\0"
+    "on_projectionNumber_valueChanged(int)\0"
 };
 
 void NotObviousMethod::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -59,6 +61,7 @@ void NotObviousMethod::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 2: _t->on_equationB_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 3: _t->on_accurateA_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 4: _t->on_accurateB_valueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 5: _t->on_projectionNumber_valueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -96,9 +99,9 @@ int NotObviousMethod::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     return _id;
 }

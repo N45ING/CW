@@ -9,6 +9,7 @@
 #include <QString>
 #include <QVector>
 #include <QDebug>
+#include <QDialog>
 #include <math.h>
 #include <iostream>
 #include <fstream>
@@ -17,7 +18,7 @@
 #include <qwt_plot_curve.h>
 #include "qfunc3d.h"
 #include <qwt3d_surfaceplot.h>
-
+#include "widget.h"
 
 using namespace std;
 namespace Ui {
@@ -43,6 +44,8 @@ private slots:
     void on_accurateA_valueChanged(double arg1);
     void on_accurateB_valueChanged(double arg1);
 
+    void on_projectionNumber_valueChanged(int arg1);
+
 private:
     Ui::NotObviousMethod *ui;
     double _equationA;
@@ -65,8 +68,10 @@ private:
     double coeffMin;
     double hMax,hMin;
     double tMax,tMin;
+    QDialog dialogForNet;
     QVector< QVector<double> > X;
     QVector<double> T;
+    QVector<double> acceptedT;
     QVector<double> THAU;
     QVector<double> H;
     QVector<double> steps;
@@ -83,13 +88,10 @@ private:
     double dfdwiminus1(double wiminus1, double wi, double wiplus1, double h, double thau);
     double dfdwi(double wiminus1, double wi, double wiplus1, double h, double thau);
     double dfdwiplus1(double wiminus1, double wi, double wiplus1, double h, double thau);
-    double* SLAU(double *a, double *b, int n);
-    QVector<double> solveExclusion(QVector<double> A, QVector<double> B);
     QVector<double> solveGauss(QVector<double> A, QVector<double> B);
     QVector<double> calculateNewton(QVector<double> oldW,double time, double h, double thau);
     QVector<double> fillYacoby(QVector<double> ws, double h, double thau);
     QVector<double> solveInterpolation(QVector<double> xOld, QVector<double> yOld, QVector<double> xNew);
-    QVector<double> solveInterpolation1(QVector<double> oldX, QVector<double> oldY, QVector<double> xNew);
     QVector<double> getDoubleX(QVector<double> oldX);
     QVector<double> getCoeffs(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T,double h, double t,double& alphaOut);
     QVector<double> clarifyW(QVector<double> WHT, QVector<double> WHTdiv2, QVector<double> WHdiv2T);
@@ -125,6 +127,12 @@ private:
     QGridLayout *gridGraphLayout;
     QwtPlotCurve *gridGraphCurve;
 
+    QwtText *projectionGraphText;
+    QwtPlot *projectionGraphPlot;
+    QGridLayout *projectionGraphLayout;
+    QwtPlotCurve *projectionGraphCurve;
+    QwtPlotCurve *projectionGraphCurveAdd;
+
 
     void displayGraphThau();
     void displayGraphH();
@@ -132,6 +140,7 @@ private:
     void displayGraphMistakes();
     void displayGraph3D();
     void displayGrid();
+    void displayProjections(int number);
 };
 
 #endif // NOTOBVIOUSMETHOD_H

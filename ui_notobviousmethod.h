@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'notobviousmethod.ui'
 **
-** Created: Sun 19. May 23:19:17 2013
+** Created: Tue 21. May 10:05:04 2013
 **      by: Qt User Interface Compiler version 4.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -17,8 +17,10 @@
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QFrame>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
 #include <QtGui/QWidget>
 
@@ -45,8 +47,10 @@ public:
     QFrame *graphMistakesFrame;
     QWidget *tabSix;
     QFrame *frame3D;
-    QWidget *tabSeven;
-    QFrame *graphGridFrame;
+    QWidget *tabEight;
+    QFrame *graphProjectionFrame;
+    QSpinBox *projectionNumber;
+    QLabel *projectionLabel;
 
     void setupUi(QWidget *NotObviousMethod)
     {
@@ -124,14 +128,20 @@ public:
         frame3D->setFrameShape(QFrame::StyledPanel);
         frame3D->setFrameShadow(QFrame::Raised);
         tabWidget->addTab(tabSix, QString());
-        tabSeven = new QWidget();
-        tabSeven->setObjectName(QString::fromUtf8("tabSeven"));
-        graphGridFrame = new QFrame(tabSeven);
-        graphGridFrame->setObjectName(QString::fromUtf8("graphGridFrame"));
-        graphGridFrame->setGeometry(QRect(180, 40, 521, 421));
-        graphGridFrame->setFrameShape(QFrame::StyledPanel);
-        graphGridFrame->setFrameShadow(QFrame::Raised);
-        tabWidget->addTab(tabSeven, QString());
+        tabEight = new QWidget();
+        tabEight->setObjectName(QString::fromUtf8("tabEight"));
+        graphProjectionFrame = new QFrame(tabEight);
+        graphProjectionFrame->setObjectName(QString::fromUtf8("graphProjectionFrame"));
+        graphProjectionFrame->setGeometry(QRect(130, 60, 601, 411));
+        graphProjectionFrame->setFrameShape(QFrame::StyledPanel);
+        graphProjectionFrame->setFrameShadow(QFrame::Raised);
+        projectionNumber = new QSpinBox(tabEight);
+        projectionNumber->setObjectName(QString::fromUtf8("projectionNumber"));
+        projectionNumber->setGeometry(QRect(220, 480, 42, 22));
+        projectionLabel = new QLabel(tabEight);
+        projectionLabel->setObjectName(QString::fromUtf8("projectionLabel"));
+        projectionLabel->setGeometry(QRect(130, 480, 91, 20));
+        tabWidget->addTab(tabEight, QString());
 
         retranslateUi(NotObviousMethod);
 
@@ -143,7 +153,7 @@ public:
 
     void retranslateUi(QWidget *NotObviousMethod)
     {
-        NotObviousMethod->setWindowTitle(QApplication::translate("NotObviousMethod", "Form", 0, QApplication::UnicodeUTF8));
+        NotObviousMethod->setWindowTitle(QApplication::translate("NotObviousMethod", "NotObviousMethod", 0, QApplication::UnicodeUTF8));
         calculateButton->setText(QApplication::translate("NotObviousMethod", "Calculate", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabOne), QApplication::translate("NotObviousMethod", "Tab 1", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabTwo), QApplication::translate("NotObviousMethod", "Tab 2", 0, QApplication::UnicodeUTF8));
@@ -151,7 +161,8 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tabFour), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabFive), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabSix), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
-        tabWidget->setTabText(tabWidget->indexOf(tabSeven), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
+        projectionLabel->setText(QApplication::translate("NotObviousMethod", "Layer number :", 0, QApplication::UnicodeUTF8));
+        tabWidget->setTabText(tabWidget->indexOf(tabEight), QApplication::translate("NotObviousMethod", "Page", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

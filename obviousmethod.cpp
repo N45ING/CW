@@ -7,7 +7,7 @@ ObviousMethod::ObviousMethod(QWidget *parent) :
 {
     ui->setupUi(this);
     stream.setString(&outputString);
-    _thau=1.0/100.0;
+    _thau=1.0/100;
     _h=1.0/9;
     numberOfT=101;
     numberOfX=10;
@@ -16,6 +16,7 @@ ObviousMethod::ObviousMethod(QWidget *parent) :
     W= new double[numberOfT*numberOfX];
     fout.open("test.out");
     graph.open("graph_obvious.txt");
+    logObvious.open("logObvious.txt");
 }
 ObviousMethod::~ObviousMethod()
 {
@@ -131,8 +132,10 @@ void ObviousMethod::calculateMethod(double a, double b, double A, double B)
         {
             stream << qSetFieldWidth(15)<< "time is " << T[k] << " yApp " << W[k*n+i] << " yAcc " << Accurate[k*n+i] << "      absPoh" << fabs(W[k*n+i]-Accurate[k*n+i])<< "      otnPoh=  "<< fabs((W[k*n+i]-Accurate[k*n+i])/W[k*n+i]*100.)<<endl;
             graph << X[i] << " " << T[k] << " " << W[k*n+i] << endl;
+            logObvious << W[k*n+i] << "     " << Accurate[k*n+i]<< "     " << fabs(W[k*n+i]-Accurate[k*n+i])*0.01<< "     "<< fabs((W[k*n+i]-Accurate[k*n+i])/W[k*n+i]*100.)*0.01<< endl;
         }
         stream<<endl;
+        logObvious<<endl;
     }
     maxAbs=fabs(W[0]-Accurate[0]);
     maxVidn=fabs((W[0]-Accurate[0])/Accurate[0]*100.0);
@@ -196,21 +199,4 @@ double ObviousMethod::powr(double x, double y)
 {
     if (x>=0) return exp(y*log(x));
     else return -1*exp(y*log(fabs(x)));
-}
-
-void ObviousMethod::on_equationA_valueChanged(double arg1)
-{
-    setEquationA(arg1);
-}
-void ObviousMethod::on_equationB_valueChanged(double arg1)
-{
-    setEquationB(arg1);
-}
-void ObviousMethod::on_accurateA_valueChanged(double arg1)
-{
-    setAccurateA(arg1);
-}
-void ObviousMethod::on_accurateB_valueChanged(double arg1)
-{
-    setAccurateB(arg1);
 }

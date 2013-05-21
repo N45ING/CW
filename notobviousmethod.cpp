@@ -18,6 +18,8 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     ui->tabWidget->setTabText(3,"GraphEps");
     ui->tabWidget->setTabText(4,"GraphMistakes");
     ui->tabWidget->setTabText(5,"Graph3D");
+    ui->tabWidget->setTabText(6,"Graph Projections");
+    ui->tabWidget->setTabText(7,"Graph Grid");
     stream.setString(&outputString);
     leftBoundary=0.0;
     rightBoundary=1.0;
@@ -31,17 +33,18 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     hMin=(rightBoundary-leftBoundary)/50.0;
     tMax=(rightBoundary-leftBoundary)/4.0;
     tMin=(rightBoundary-leftBoundary)/100.0;
-    /*setEquationA(0.00001);
-    setEquationB(0.0001);
-    setAccurateA(0.01);
+    /*setEquationA(0.001);
+    setEquationB(0.001);
+    setAccurateA(0.06);
     setAccurateB(0.09);*/
-    setEquationA(0.00001);
-    setEquationB(0.00001);
-    setAccurateA(0.0001);
-    setAccurateB(0.09);
+    setEquationA(0.001);
+    setEquationB(0.001);
+    setAccurateA(0.06);
+    setAccurateB(0.03375);
     edop=0.01;
     fout.open("graphic.txt");
 
+    QPen additionalPen = QPen(Qt::red);
     globalPen = QPen(Qt::blue);
     thauGraphText = new QwtText("Graphic of thau(time step) dependence");
     thauGraphPlot = new QwtPlot(*thauGraphText,ui->graphThauFrame);
@@ -84,7 +87,7 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     mistakesGraphCurve->setPen(globalPen);
     mistakesGraphCurve->attach(mistakesGraphPlot);
 
-    gridGraphText = new QwtText("GRID");
+    /*gridGraphText = new QwtText("GRID");
     gridGraphPlot = new QwtPlot(*gridGraphText,ui->graphGridFrame);
     gridGraphLayout = new QGridLayout(ui->graphGridFrame);
     gridGraphLayout->setContentsMargins(1,1,1,1);
@@ -92,9 +95,22 @@ NotObviousMethod::NotObviousMethod(QWidget *parent,int _numberOfX, int _numberOf
     gridGraphCurve= new QwtPlotCurve();
     gridGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
     gridGraphCurve->setPen(globalPen);
-    gridGraphCurve->attach(gridGraphPlot);
-}
+    gridGraphCurve->attach(gridGraphPlot);*/
 
+    projectionGraphText = new QwtText("Graphics of accurate and approximate values(projected)");
+    projectionGraphPlot = new QwtPlot(*projectionGraphText,ui->graphProjectionFrame);
+    projectionGraphLayout = new QGridLayout(ui->graphProjectionFrame);
+    projectionGraphLayout->setContentsMargins(1,1,1,1);
+    projectionGraphLayout->addWidget(projectionGraphPlot,0,0);
+    projectionGraphCurve= new QwtPlotCurve();
+    projectionGraphCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    projectionGraphCurve->setPen(globalPen);
+    projectionGraphCurve->attach(projectionGraphPlot);
+    projectionGraphCurveAdd= new QwtPlotCurve();
+    projectionGraphCurveAdd->setRenderHint(QwtPlotItem::RenderAntialiased);
+    projectionGraphCurveAdd->setPen(additionalPen);
+    projectionGraphCurveAdd->attach(projectionGraphPlot);
+}
 NotObviousMethod::~NotObviousMethod()
 {
     delete ui;
@@ -198,59 +214,6 @@ double NotObviousMethod::dfdwiplus1(double wiminus1, double wi, double wiplus1, 
     x2=9.0*h*powr(wi,1.0/3.0);
     x3=powr((wiplus1-wiminus1)/h,4.0/3.0);
     return _equationA*thau*(x1 - (2.0*pow(2.0,1.0/3.0))/(x2*x3));
-}
-double* NotObviousMethod::SLAU(double *a, double *b, int n)
-{
-    double *x = new double[n+1];
-    double R;
-    for (int k=1;k<=n;k++)
-    {
-        for (int i=0;i<=k-1;i++)
-        {
-            R=a[k*n+i] / a[i*n+i];
-           for (int j=i;j<=n;j++)
-               {
-                   a[k*n+j]=a[k*n+j]-R*a[i*n+j];
-               }
-               b[k]=b[k]-R*b[i];
-           }
-           for (int i=0;i<=k-1;i++)
-           {
-               R=a[i*n+k]/a[k*n+k];
-               for (int j=k;j<=n;j++)
-                   a[i*n+j]=a[i*n+j]-R*a[k*n+j];
-               b[i]=b[i]-R*b[k];
-           }
-       }
-       for (int i=0;i<=n;i++)
-           x[i]=b[i]/a[i*n+i];
-
-       return x;
-}
-QVector<double> NotObviousMethod::solveExclusion(QVector<double> A, QVector<double> B)
-{
-
-    QVector<double> result;
-    double *matrixA = new double[A.size()];
-    double *rowB = new double[B.size()];
-    double *rowR = new double [B.size()];
-    for (int i=0;i<A.size();i++)
-    {
-        matrixA[i]=A[i];
-    }
-    for(int i=0;i<B.size();i++)
-    {
-        rowB[i]=B[i];
-    }
-    rowR = SLAU(matrixA,rowB,B.size());
-    for(int i=0;i<B.size();i++)
-    {
-        result.push_back(rowR[i]);
-    }
-    delete [] matrixA;
-    delete [] rowB;
-    delete [] rowR;
-    return result;
 }
 
 QVector<double> NotObviousMethod::solveGauss(QVector<double> A, QVector<double> B)
@@ -375,21 +338,6 @@ QVector<double> NotObviousMethod::solveInterpolation(QVector<double> xOld, QVect
     }
     return yNew;
 }
-QVector<double> NotObviousMethod::solveInterpolation1(QVector<double> oldX, QVector<double> oldY, QVector<double> xNew)
-{
-    QVector<double> y;
-        foreach (double x, xNew)
-        {
-            int i=0;
-            if (x>oldX.back()) i=oldX.size()-2;
-            while(x>oldX[i]&&x<oldX.back())
-                if (x<oldX[i+1]) break;
-                else i++;
-            y.push_back((x*oldY[i]-x*oldY[i+1]+oldX[i]*oldY[i+1]-oldX[i+1]*oldY[i])/(oldX[i]-oldX[i+1]));
-        }
-        return y;
-}
-
 QVector<double> NotObviousMethod::getDoubleX(QVector<double> oldX)
 {
     QVector<double> newX(oldX.size()*2-1);
@@ -483,10 +431,13 @@ void NotObviousMethod::calculateMethod()
 {
     int i;
     //double t=tMin;
-    //double h=hMin;
+    //double h=hMin*2;
+    double maxAbs;
+    double maxOtn;
 
     double h = (rightBoundary-leftBoundary)/(numberOfX-1);
     double t = (rightBoundary-leftBoundary)/(numberOfT-1);
+    qDebug() << h << " " << t;
 
     Z.push_back((QVector<double>)0);
     W.push_back((QVector<double>)0);
@@ -566,6 +517,7 @@ void NotObviousMethod::calculateMethod()
         }
         else
         {
+            acceptedT.push_back(time);
             EPS.push_back(eps); // прийняті епс
             WClarify=clarifyW(WHT,WHTdiv2,WHdiv2T);
             double alpha;
@@ -588,18 +540,29 @@ void NotObviousMethod::calculateMethod()
                  //mistakeHelp.push_back(fabs((value-getAccurateValue(argument,time))/value*100.));
                  argument+=h;
                  fout << argument << " " << time << " " << value << endl;
+                 if(fabs(value-getAccurateValue(argument,time)) > maxAbs) maxAbs =fabs(value-getAccurateValue(argument,time));
+                 if(fabs((value-getAccurateValue(argument,time))/value*100.)>maxOtn) maxOtn =fabs((value-getAccurateValue(argument,time))/value*100.);
             }
             MISTAKE.push_back(getMax(mistakeHelp));
             stream <<endl;
         }
         //k++;
+
     }while(time<rightBoundary-t);
+  { /*// stream << 5.14875 << 3.7548 << endl;*/
+    stream << maxAbs*0.01 << maxOtn*0.01 << endl;}
+    ui->projectionNumber->setMinimum(0);
+    ui->projectionNumber->setMaximum(acceptedT.size());
     displayGraphThau();
     displayGraphH();
     displayGraphEps();
     displayGraphMistakes();
     displayGraph3D();
-    displayGrid();
+    //displayGrid();
+    displayProjections(1);
+    widget *webShower=new widget(&dialogForNet);
+    webShower->setWeb(X,acceptedT);
+    dialogForNet.show();
 }
 void NotObviousMethod::displayGraphThau()
 {
@@ -636,7 +599,18 @@ void NotObviousMethod::displayGrid()
     //gridGraphCurve->setData();
     //gridGraphPlot->replot();
 }
-
+void NotObviousMethod::displayProjections(int number)
+{
+    int t = number;
+    QVector<double> grz;
+    for (int i=0;i<X[number].size();i++)
+    {
+        grz.push_back(getAccurateValue(X[number][i],acceptedT[number]));
+    }
+    projectionGraphCurveAdd->setData(X[t],grz);
+    projectionGraphCurve->setData(X[t],W[t]);
+    projectionGraphPlot->replot();
+}
 void NotObviousMethod::displayGraph3D()
 {
     // Компоновщик
@@ -657,7 +631,7 @@ void NotObviousMethod::displayGraph3D()
     double *Yd = Xd + Nd;
     double *Zd = Yd + Md;
 
-    // Подготовка данных
+    // Подготовка данныхq
     double hx = 1.0/(Nd-1);  // шаг приращения по X
     double hy = 1.0/(Md-1);  // шаг приращения по Y
     for (int n = 0; n < Nd; n++) Xd[n] = 0 + n*hx;
@@ -683,6 +657,7 @@ void NotObviousMethod::on_calculateButton_clicked()
     ui->plainTextEdit->clear();
     printf(outputString);
     outputString.clear();
+    ui->calculateButton->setEnabled(false);
 }
 void NotObviousMethod::on_equationA_valueChanged(double arg1)
 {
@@ -700,4 +675,7 @@ void NotObviousMethod::on_accurateB_valueChanged(double arg1)
 {
     setAccurateB(arg1);
 }
-
+void NotObviousMethod::on_projectionNumber_valueChanged(int arg1)
+{
+    displayProjections(arg1);
+}

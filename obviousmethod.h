@@ -28,10 +28,11 @@ public:
     double getAccurateValue(double x, double t);
     double getLeftBoundaryCondition(double t);
     double getRightBoundaryCondition(double t);
-    void calculateMethod(double a=0.00001,double b=0.00001,double A=0.06,double B=0.009);
+    void calculateMethod(double a=0.001,double b=0.001,double A=0.01,double B=0.0425*1.55);
     void testConstant();
     ofstream fout;
     ofstream graph;
+    ofstream logObvious;
 
 private slots:
     void on_calculateButton_clicked();
@@ -39,10 +40,6 @@ private slots:
     void setEquationB(double b);
     void setAccurateA(double a);
     void setAccurateB(double b);
-    void on_equationA_valueChanged(double arg1);
-    void on_equationB_valueChanged(double arg1);
-    void on_accurateA_valueChanged(double arg1);
-    void on_accurateB_valueChanged(double arg1);
 
 private:
     Ui::ObviousMethod *ui;
@@ -61,6 +58,7 @@ private:
     QString outputString;
     QTextStream stream;
     double powr(double x, double y);
+    void displayGraph3D();
 };
 
 #endif // OBVIOUSMETHOD_H

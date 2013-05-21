@@ -14,12 +14,14 @@ SOURCES += main.cpp\
        mainwindow.cpp \
        obviousmethod.cpp \
        notobviousmethod.cpp \
-    qfunc3d.cpp
+    qfunc3d.cpp \
+    widget.cpp
 
 HEADERS  += mainwindow.h \
         obviousmethod.h \
         notobviousmethod.h \
-    qfunc3d.h
+    qfunc3d.h \
+    widget.h
 
 FORMS    += mainwindow.ui \
         obviousmethod.ui \

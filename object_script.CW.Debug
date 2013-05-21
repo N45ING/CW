@@ -1,0 +1,12 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\obviousmethod.o
+./debug\notobviousmethod.o
+./debug\qfunc3d.o
+./debug\widget.o
+./debug\moc_mainwindow.o
+./debug\moc_obviousmethod.o
+./debug\moc_notobviousmethod.o
+./debug\moc_widget.o
+);
